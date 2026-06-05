@@ -50,7 +50,37 @@ Below is the head of our our cleaned data:
 
 ## Univariate Analysis
 We performed a univariate analysis
+
+<iframe
+  src="assets/kills_per_match.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+<iframe
+  src="assets/monster_objectives_by_result.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 ## Bivariate Analysis
+
+<iframe
+  src="assets/kills_by_result.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+<iframe
+  src="assets/monster_objectives_by_result.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 ## Interesting Aggregates
 We created a pivot table by grouping the data by results. This revealed that teams that usually lost the match had a lower average amount of kills and monster objective kills than teams that won the match. We will go more into depth with this information during our hypothesis testing.
 
@@ -59,11 +89,41 @@ We created a pivot table by grouping the data by results. This revealed that tea
 |        0 |       10.5984 |                     3.6846 |   1.40974 |  0.337617 | 0.171249 |      1.76599 |
 |        1 |       21.9984 |                     7.0272 |   3.03626 |  0.660291 | 0.886232 |      2.44441 |
 
+
 # Assessment of Missingness
+
 ## NMAR Analysis
 ## Missingness Dependency
+<iframe
+  src="assets/tvd_mountains_vs_barons.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+<iframe
+  src="assets/tvd_mountains_vs_results.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 
 # Hypothesis Testing
+<iframe
+  src="assets/test1_total_kills.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+<iframe
+  src="assets/test2_total_monsters.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 # Framing a Prediction Problem
 # Baseline Model
 # Final Model
