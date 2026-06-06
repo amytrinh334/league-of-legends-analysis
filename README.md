@@ -20,7 +20,7 @@ This dataset, curated by Oracle's Elixir, contains match data from multiple LoL 
 | `participantid` | A unique number (from 1 through 10) assigned to each player in that specific match to distinguish them from one another. Numbers designated 100 or 200 indicate that the data is a summary of the team statistics. |
 | `side` | Indicates which half of the map the team started on—either Blue (bottom-left) or Red (top-right). |
 | `position` | The specific role the player took during the match (Top, Jungle, Mid, ADC/Bot, or Support). Positions designated team indicate that the data is a summary of the team statistics. |
-| `result` | The result/outcome of each match. 1 indicates that the team/player won the match, 0 indicates that the team/player loss the match. |
+| `result` | The result/outcome of each match. 1 indicates that the team/player won the match, 0 indicates that the team/player lost the match. |
 | `kills` | The number of times the player/team landed the final blow to eliminate an enemy champion. |
 | `deaths` | The number of times the player was eliminated by enemy champions, towers, or monsters. |
 | `assists` | The number of times the player/team damaged or debuffed an enemy champion (or healed/buffed an ally) right before that enemy was killed by a teammate. |
@@ -39,7 +39,7 @@ This dataset, curated by Oracle's Elixir, contains match data from multiple LoL 
 
 ## Data Cleaning
 
-Before analyzing the data, we took several steps to clean the dataset. First, we filtered out the columns to only keep the match statistics that were relevant to our hypothesis testing and predictive model (kept columns are given descriptions in the table above). We then filtered out the data to only include team statistics instead of individual player statistics, since we wanted to focus on the entire team's match data and results. We then created renamed the team's kills columns to `total_kill` for easy understanding, and also curated a new column named `total_monster_objectives` which is the sum of the teams total dragons, heralds, void gribs, and baron kills. We decided to not drop any missing values for now, as we will peform some missingness dependency tests later on. After cleaning the dataset, we ended up with a total of 20076 rows and 25 columns.
+Before analyzing the data, we took several steps to clean the dataset. First, we filtered out the columns to only keep the match statistics that were relevant to our hypothesis testing and predictive model (kept columns are given descriptions in the table above). We then filtered out the data to only include team statistics instead of individual player statistics, since we wanted to focus on the entire team's match data and results. We then created renamed the team's kills columns to `total_kill` for easy understanding, and also curated a new column named `total_monster_objectives` which is the sum of the teams total dragons, heralds, void grubs, and baron kills. We decided to not drop any missing values for now, as we will perform some missingness dependency tests later on. After cleaning the dataset, we ended up with a total of 20076 rows and 25 columns.
 
 Below is the head of our our cleaned data:
 
@@ -80,7 +80,7 @@ We also performed a bivariate analysis on the total number of team kills and mon
   height="600"
   frameborder="0"
 ></iframe>
-This box plot shows the distribtion of total team kills by result, where losing teams (0) are green and winning teams (1) are orange. It appears that winning teams have a higher median number of total team kills by result at 22, but also has a larger variance. Losing teams have a lower median number of total team kills at 10.
+This box plot shows the distribution of total team kills by result, where losing teams (0) are green and winning teams (1) are orange. It appears that winning teams have a higher median number of total team kills by result at 22, but also has a larger variance. Losing teams have a lower median number of total team kills at 10.
 
 <iframe
   src="assets/monster_objectives_by_result.html"
@@ -88,7 +88,7 @@ This box plot shows the distribtion of total team kills by result, where losing 
   height="600"
   frameborder="0"
 ></iframe>
-This box plot shows the distribtion of total monster objective kills by result, where losing teams (0) are green and winning teams (1) are orange. It appears that winning teams have a higher median number of total monster objective kills by result at 7 and also has a smaller variance. Losing teams have a lower median number of total team kills at 3.
+This box plot shows the distribution of total monster objective kills by result, where losing teams (0) are green and winning teams (1) are orange. It appears that winning teams have a higher median number of total monster objective kills by result at 7 and also has a smaller variance. Losing teams have a lower median number of total team kills at 3.
 
 ## Interesting Aggregates
 We created a pivot table by grouping the data by results. This dataframe summarize the pattern that was revealed in our bivariate analysis. This revealed that teams that usually lost the match had a lower average amount of kills and monster objective kills than teams that won the match. We will go more into depth with this information during our hypothesis testing.
@@ -105,7 +105,7 @@ We created a pivot table by grouping the data by results. This dataframe summari
 In our data we, had missing values from the columns `infernals`, `mountains`, `clouds`, `oceans`, `chemtechs`, `hextechs`, `elders`, `doublekills`,`triplekills`, `quadrakills`, and `pentakills`. All of these columns had the same amount of missing values, 1634. We believe that there are no columns in the dataset that are NMAR. The null values are either dragon types (mountain, elders, hextechs, chemtechs, oceans, clouds, infernals) and kill types (double, triple, quadra, penta). These values are likely to be dependent on other League of Legends stats, such as the number of dragons killed or the total number of team kills. It is unlikely that the missing values are only dependent on themselves, as they are probably MD, MAR, or MCAR.  The fact that they have the same amount of missing values suggest that it could possibly be Missing By Design (MD).
 
 ## Missingness Dependency
-In this section, we will test if there is a depenency for the null values of the dragon types on the rest of the dataset. For simplicity, we will only be using one dragon type, `mountains`. Since there are many columns, we decided to run permuation tests on every column that did not have missing values to see the dependency of `mountains`.
+In this section, we will test if there is a dependency for the null values of the dragon types on the rest of the dataset. For simplicity, we will only be using one dragon type, `mountains`. Since there are many columns, we decided to run permutation tests on every column that did not have missing values to see the dependency of `mountains`.
 
 **Null Hypothesis**: The distribution of mountains is independent of another column. Any observed difference in proportions is due to random chance.
 
@@ -113,7 +113,7 @@ In this section, we will test if there is a depenency for the null values of the
 
 **Test Statistic**: Total Variation Distance (TVD)
 
-After running our permutation tests, we discovered that `mountains` is dependent on other columns such as `side`, `heralds`, `result`, `firstblood`, `clouds`, `hextechs`, `chemtechs`, `infernals`, and `oceans`. The `mountains` column is not dependent on other columns such as `void_grubs`, `barons`, `dragons`, `doublekills`, `elders`, `pentakills`, `triplekills`, `quardrakills`, and `position`.
+After running our permutation tests, we discovered that `mountains` is dependent on other columns such as `side`, `heralds`, `result`, `firstblood`, `clouds`, `hextechs`, `chemtechs`, `infernals`, and `oceans`. The `mountains` column is not dependent on other columns such as `void_grubs`, `barons`, `dragons`, `doublekills`, `elders`, `pentakills`, `triplekills`, `quadrakills`, and `position`.
 
 What we found interesting is the the dragon type column is mainly not dependent on the amount of dragons killed, as it had the highest TVD of 0.44, but whether the dragon is another type. This makes sense however, since if the dragon is one type, it will not be of another.
 
@@ -124,7 +124,7 @@ Below is an example of plots for 'mountains' when it is tested against 'result',
   height="600"
   frameborder="0"
 ></iframe>
-The observed TVD for this test was approximately 0.38, and the p-value was equal to approximately 0.067. Since the p-value is greater than the 0.5 significance level, we fail reject the null hypothesis. Thus, the missingness of `mountains` does not depend on the `barons` column.
+The observed TVD for this test was approximately 0.38, and the p-value was equal to approximately 0.067. Since the p-value is greater than the 0.05 significance level, we fail reject the null hypothesis. Thus, the missingness of `mountains` does not depend on the `barons` column.
 
 <iframe
   src="assets/tvd_mountains_vs_result.html"
@@ -132,11 +132,11 @@ The observed TVD for this test was approximately 0.38, and the p-value was equal
   height="600"
   frameborder="0"
 ></iframe>
-The observed TVD for this test was approximately 0.16, and the p-value was equal to 0. Since the p-value is less than the 0.5 significance level, we reject the null hypothesis. Thus, the missingness of `mountains` depends on the `result` column.
+The observed TVD for this test was approximately 0.16, and the p-value was equal to 0. Since the p-value is less than the 0.05 significance level, we reject the null hypothesis. Thus, the missingness of `mountains` depends on the `result` column.
 
 
 # Hypothesis Testing
-In this section, we want to asses if there is a significant difference between the distribution of total kills and total monster objectives between winning and losing teams. This information will be be helpful in understanding the accuracy of our prediction model. We will run two one-sided permutation tests using difference in means as the test statistic. 
+In this section, we want to assess if there is a significant difference between the distribution of total kills and total monster objectives between winning and losing teams. This information will be be helpful in understanding the accuracy of our prediction model. We will run two one-sided permutation tests using difference in means as the test statistic. 
 
 ### **Test 1: Kills**
 **Null Hypothesis:** Winning teams and losing teams have the same distribution of total kills. Any difference in average kills is due to random chance.
@@ -165,22 +165,47 @@ After running our permutation tests, we got a p-value that is close to 0. Since 
 After running our permutation tests, we got a p-value that is close to 0. Since it is less than the 0.05 significance level, we will reject the null hypothesis. Therefore, there is sufficient evidence that winning teams have a higher mean total monster objective kills than than losing teams.
 
 # Framing a Prediction Problem
+Our prediction problem is to predict whether a team wins or loses a League of Legends match using kill statistics and monster-objective statistics. This is a binary classification problem. The response variable is the `result` column, where 1 means the team won and 0 means the team lost.
 
+This prediction problem connects to our research question because we are comparing whether kills or monster objectives are more useful for understanding match outcomes. In our hypothesis tests, we found that winning teams tend to have higher total kills and higher total monster objectives than losing teams. In the prediction section, we use these same types of statistics to predict whether a team won.
+
+The time of prediction is after the match has ended, when team-level statistics such as `total_kills`, `dragons`, `heralds`, `barons`, and `void_grubs` are available. This means our model is not trying to predict the winner before the match starts. Instead, it is used to evaluate how closely kills and monster objectives are connected to the final match result.
+
+We evaluate our model using accuracy. Accuracy is appropriate because this is a binary classification problem and the response variable is balanced: each match has one winning team and one losing team. Therefore, accuracy gives a clear measure of the proportion of team results that the model correctly predicts.
 
 # Baseline Model
+For our baseline model, we used a logistic regression classifier to predict whether a team won or lost. The model used two quantitative features: `total_kills` and `total_monster_objectives`. Both of these features are numerical count variables, so no categorical encoding was needed.
+
+We chose these features because they directly connect to our research question. `total_kills` represents a team’s combat performance, while `total_monster_objectives` represents the team’s objective control. Using both features allows the model to consider both fighting and objective-taking when predicting match outcome.
+
+We evaluated the model using accuracy on an unseen test set. The baseline model using both features achieved an accuracy of approximately **87.51%**. This means that the model correctly predicted about 87.51% of team match results in the test data.
+
+We believe this is a strong baseline model because it performs much better than a simple classifier that always predicts the majority class. Since the `result` column is balanced, a majority-class baseline would only achieve about 50% accuracy. Our baseline model’s accuracy is much higher than that, so it provides a strong starting point for predicting match outcomes.
 
 
 # Final Model
 To determine the best model for the two statistics, we will be using the SequentialFeatureSelector to determine which features are most helpful for the model. This will be helpful in determining if the game statistics that contribute to the kills/monster_objective counts will impact the model.
-We will use GridSearchCV to compare different models such as Logistic Regession, SVC (Support Vector Classifier), and Decision Tree Classifier for the final model, as well as testing different hyperparameters for them. In the Pipeline, we created new columns by using StandardScalar on all the columns to make all the columns standardized. This makes it so that games with unusally large statistics don't impact the training of the model. We used the ROC-AUC score to evaluate the models since it tends to be a better evaluator for binary classifcation models.
+We will use GridSearchCV to compare different models such as Logistic Regession, SVC (Support Vector Classifier), and Decision Tree Classifier for the final model, as well as testing different hyperparameters for them. In the Pipeline, we used StandardScaler to standardize the numerical features so that features with larger numerical ranges would not dominate certain models. This makes it so that games with unusally large statistics don't impact the training of the model. We used the ROC-AUC score to evaluate the models since it tends to be a better evaluator for binary classifcation models.
 
-For the kills statistic, the best model was a Logistic Regression model with the hyperparemeter C equals 0.01 and the penalty being l2. It selected 4 features to use, `total_kills`, `doublekills`, `quadrakills`, `pentakills`, and ultimately ended up with an ROC-AUC score of **0.9239**. For the monster objective statistic, the best model was a Decision Tree Classifier model with the hyperparameters Max Depth equaling None, samples_split equaling 10, and the criterion equaling gini. It selected 3 features to use, `total_monster_objectives`, `barons`, `void_grubs`, and had a final ROC-AUC score of **0.9124**. Just for comparision, we also created a model using both features from the kills and monster objective statistics. The best model was a Logistic Regression Model with the hyperparameter C equals 10. It selected 9 features to use, and had a final ROC-AUC Score of 0.9522. 
+For the kills statistic, the best model was a Logistic Regression model with the hyperparameter C equals 0.01 and the penalty being l2. It selected 4 features to use, `total_kills`, `doublekills`, `quadrakills`, `pentakills`, and ultimately ended up with an ROC-AUC score of **0.9239**. For the monster objective statistic, the best model was a Decision Tree Classifier model with the hyperparameters Max Depth equaling None, samples_split equaling 10, and the criterion equaling gini. It selected 3 features to use, `total_monster_objectives`, `barons`, `void_grubs`, and had a final ROC-AUC score of **0.9124**. Just for comparison, we also created a model using both features from the kills and monster objective statistics. The best model was a Logistic Regression Model with the hyperparameter C equals 10. It selected 9 features to use, and had a final ROC-AUC Score of 0.9522. 
 
-In conclusion, all three models were able to improve significantly and are highly accurate in it's prediction of if a team wins or loses a match. The kills statistics final model had a higher ROC-AUC score of 0.9239 using a Logistic Regression model. Compared to its baseline model, the kills statistic model had a ROC-AUC score of 0.8436 using a simple Logistic Regression model. The final model wa thus improved by 0.0803, or about **8.03%**. On the other hand, the monster objective statistics final model had a lower ROC-AUC score of 0.9124 using a Decision Tree model. It's original baseline LogisticRegression model has a ROC-AUC score of 0.7775, meanig that it approved by 0.1349, or **13.49%**. Lastly, the the model using both features  , had a final ROC-AUC score 0f 0.9522. The original baseline model using only the total_kills and total_monster_objectives, however, had a  accuracy of 0.8751. Thus this model improvd by 0.0771 or 7.71%. 
+In conclusion, all three models were able to improve significantly and are highly accurate in it's prediction of if a team wins or loses a match. The kills statistics final model had a higher ROC-AUC score of 0.9239 using a Logistic Regression model. Compared to its baseline model, the kills statistic model had a ROC-AUC score of 0.8436 using a simple Logistic Regression model. The final model was thus improved by 0.0803, or about **8.03%**. On the other hand, the monster objective statistics final model had a lower ROC-AUC score of 0.9124 using a Decision Tree model. Its original baseline LogisticRegression model has a ROC-AUC score of 0.7775, meaning that it improved by 0.1349, or **13.49%**. Lastly, the model using both features, had a final ROC-AUC score 0f 0.9522. The original baseline model using only the total_kills and total_monster_objectives, however, had a  accuracy of 0.8751. Thus this model improved by 0.0771 or 7.71%. 
 
-It appears that the kills statistic model was a better predictor for the result of the match. It's final model was higher than the monster objectives model by 1.15%. While this suggest that the kills statistic has higher predictive power, the small margin of difference indicates that both statistics are important factors and predictors of a match's result, as seen in the high accuracy for the model that implemented both statistics. 
+It appears that the kills statistic model was a better predictor for the result of the match. Its final model was higher than the monster objectives model by 1.15%. While this suggest that the kills statistic has higher predictive power, the small margin of difference indicates that both statistics are important factors and predictors of a match's result, as seen in the high accuracy for the model that implemented both statistics. 
 
 # Fairness Analysis
+For our fairness analysis, we tested whether our models performed differently for Blue teams compared to Red teams. Since our project compares kill statistics and monster-objective statistics, we ran the fairness analysis on both the kills model and the monster objectives model.
+
+Our evaluation metric was accuracy because our models are binary classifiers that predict whether a team won or lost.
+
+**Null Hypothesis:** The model is fair with respect to side. Its accuracy for Blue-side teams and Red-side teams is roughly the same, and any observed difference is due to random chance.
+
+**Alternative Hypothesis:** The model is not fair with respect to side. Its accuracy for Blue-side teams and Red-side teams is different.
+
+**Test Statistic:** The absolute difference in accuracy between Blue-side teams and Red-side teams.
+
+For the kills model, the observed difference in accuracy between Blue-side and Red-side teams was 0.0124, and the p-value was 0.258. Since the p-value is greater than 0.05, we fail to reject the null hypothesis. There is not sufficient evidence to show that there is a difference in performance for Blue-side and Red-side teams.
+
 <iframe
   src="assets/fairness_kills_model.html"
   width="800"
@@ -188,6 +213,7 @@ It appears that the kills statistic model was a better predictor for the result 
   frameborder="0"
 ></iframe>
 
+For the monster objectives model, the observed difference in accuracy between Blue-side and Red-side teams was 0.0133, and the p-value was 0.24. Since the p-value is greater than 0.05, we fail to reject the null hypothesis. There is not sufficient evidence to show that there is a difference in performance for Blue-side and Red-side teams.
 <iframe
   src="assets/fairness_monster_objectives_model.html"
   width="800"
@@ -195,6 +221,15 @@ It appears that the kills statistic model was a better predictor for the result 
   frameborder="0"
 ></iframe>
 
+Overall, both models appeared to perform similarly for Blue-side and Red-side teams based on accuracy.
+
 # Conclusion
 
+Overall, our analysis suggests that both kills and monster objectives are strongly related to whether a team wins or loses a LoL match. In our hypothesis tests, we found sufficient evidence that winning teams have higher average total kills and higher average total monster objectives than losing teams.
+
+In our prediction models, the kills-only final model (ROC-AUC scores of 0.9239) performed slightly better than the monster-objectives-only final model (ROC-AUC scores of 0.9124). However, the combined model using both kill statistics and monster-objective statistics performed best overall, with a ROC-AUC score of 0.9522. This suggests that kills and monster objectives each provide useful information, but using them together gives the strongest prediction of match result.
+
+Our fairness analysis also found no significant evidence that either model performed differently for Blue and Red teams. This means that the models appeared to perform similarly across both sides of the map.
+
+In conclusion, kills appear to be a slightly stronger individual predictor than monster objectives, but the best understanding of match outcomes comes from considering both combat performance and objective control together.
  
