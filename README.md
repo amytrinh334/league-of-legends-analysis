@@ -11,6 +11,7 @@ Our main research question is **"Which game statistic is a better predictor of a
 ## Dataset Introduction
 
 This dataset, curated by Oracle's Elixir, contains match data from multiple LoL esports leagues from 2025. It contains 120456 rows of data, which consists of individual player and team stats, as well as 165 columns of match data. A brief introduction to the dataset of some important columns to understand are as follows: 
+
 | Column Name | Description |
 | :--- | :--- |
 | `gameid` | A unique identifier code for each specific match. |
@@ -39,6 +40,7 @@ This dataset, curated by Oracle's Elixir, contains match data from multiple LoL 
 Before analyzing the data, we took several steps to clean the dataset. First, we filtered out the columns to only keep the match statistics that were relevant to our hypothesis testing and predictive model (kept columns are given descriptions in the table above). We then filtered out the data to only include team statistics instead of individual player statistics, since we wanted to focus on the entire team's match data and results. We then created renamed the team's kills columns to `total_kill` for easy understanding, and also curated a new column named `total_monster_objectives` which is the sum of the teams total dragons, heralds, void gribs, and baron kills. We decided to not drop any missing values for now, as we will peform some missingness dependency tests later on. After cleaning the dataset, we ended up with a total of 20076 rows and 25 columns.
 
 Below is the head of our our cleaned data:
+
 | gameid           |   participantid | side   | position   |   result |   total_kills |   deaths |   assists |   doublekills |   triplekills |   quadrakills |   pentakills |   firstblood |   dragons |   infernals |   mountains |   clouds |   oceans |   chemtechs |   hextechs |   elders |   heralds |   void_grubs |   barons |   total_monster_objectives |
 |:-----------------|----------------:|:-------|:-----------|---------:|--------------:|---------:|----------:|--------------:|--------------:|--------------:|-------------:|-------------:|----------:|------------:|------------:|---------:|---------:|------------:|-----------:|---------:|----------:|-------------:|---------:|---------------------------:|
 | LOLTMNT03_179647 |             100 | Blue   | team       |        0 |             3 |       13 |         5 |             0 |             0 |             0 |            0 |            0 |         0 |           0 |           0 |        0 |        0 |           0 |          0 |        0 |         0 |            0 |        0 |                          0 |
@@ -164,6 +166,19 @@ After running our permutation tests, we got a p-value that is close to 0. Since 
 # Baseline Model
 # Final Model
 # Fairness Analysis
+<iframe
+  src="assets/fairness_kills_model.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+<iframe
+  src="assets/fairness_monster_objectives.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 # Conclusion
 
  
