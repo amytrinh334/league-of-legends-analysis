@@ -36,7 +36,7 @@ This dataset, curated by Oracle's Elixir, contains match data from multiple LoL 
 
 ## Data Cleaning
 
-Before analyzing the data, we took several steps to clean the dataset. First, we filtered out the columns to only keep the match statistics that were relevant to our hypothesis testing and predictive model (kept columns are given descriptions in the table above). We then filtered out the data to only include team statistics instead of individual player statistics, since we wanted to focus on the entire team's match data and results. We then created renamed the team's kills columns to `total_kill` for easy understanding, and also curated a new column named `total_monster_objectives' which is the sum of the teams total dragons, heralds, void gribs, and baron kills. We decided to not drop any missing values for now, as we will peform some missingness dependency tests later on. After cleaning the dataset, we ended up with a total of 20076 rows and 25 columns.
+Before analyzing the data, we took several steps to clean the dataset. First, we filtered out the columns to only keep the match statistics that were relevant to our hypothesis testing and predictive model (kept columns are given descriptions in the table above). We then filtered out the data to only include team statistics instead of individual player statistics, since we wanted to focus on the entire team's match data and results. We then created renamed the team's kills columns to `total_kill` for easy understanding, and also curated a new column named `total_monster_objectives` which is the sum of the teams total dragons, heralds, void gribs, and baron kills. We decided to not drop any missing values for now, as we will peform some missingness dependency tests later on. After cleaning the dataset, we ended up with a total of 20076 rows and 25 columns.
 
 Below is the head of our our cleaned data:
 | gameid           |   participantid | side   | position   |   result |   total_kills |   deaths |   assists |   doublekills |   triplekills |   quadrakills |   pentakills |   firstblood |   dragons |   infernals |   mountains |   clouds |   oceans |   chemtechs |   hextechs |   elders |   heralds |   void_grubs |   barons |   total_monster_objectives |
@@ -49,7 +49,7 @@ Below is the head of our our cleaned data:
 
 
 ## Univariate Analysis
-We performed a univariate analysis
+We performed a univariate analysis on the total number of team kills and monster objective kills by match. 
 
 <iframe
   src="assets/kills_per_match.html"
@@ -57,15 +57,18 @@ We performed a univariate analysis
   height="600"
   frameborder="0"
 ></iframe>
+This histogram graph shows the distribution of total team kills per match. It appears to have a bimodal distribution , with peaks at around 8 and 20 kills. It is likely that the peaks represent the number of kills that were obtained by losing vs winning teams. 
 
 <iframe
-  src="assets/monster_objectives_by_result.html"
+  src="assets/monster_objectives_per_match.html"
   width="800"
   height="600"
   frameborder="0"
 ></iframe>
+This histogram graph shows the distribution of total team monster objective kills per match. The distribution of the data is approximately normal, meaning that the data is well behaved. The graph has a peak at around 6 monster objectives. 
 
 ## Bivariate Analysis
+We also performed a bivariate analysis on the total number of team kills and monster objective kills by result. 
 
 <iframe
   src="assets/kills_by_result.html"
@@ -73,6 +76,7 @@ We performed a univariate analysis
   height="600"
   frameborder="0"
 ></iframe>
+This box plot shows the distribtion of total team kills by result, where losing teams (0) are green and winning teams (1) are orange. It appears that winning teams have a higher median number of total team kills by result at 22, but also has a larger variance. Losing teams have a lower median number of total team kills at 10.
 
 <iframe
   src="assets/monster_objectives_by_result.html"
@@ -80,9 +84,10 @@ We performed a univariate analysis
   height="600"
   frameborder="0"
 ></iframe>
+This box plot shows the distribtion of total monster objective kills by result, where losing teams (0) are green and winning teams (1) are orange. It appears that winning teams have a higher median number of total monster objective kills by result at 7 and also has a smaller variance. Losing teams have a lower median number of total team kills at 3.
 
 ## Interesting Aggregates
-We created a pivot table by grouping the data by results. This revealed that teams that usually lost the match had a lower average amount of kills and monster objective kills than teams that won the match. We will go more into depth with this information during our hypothesis testing.
+We created a pivot table by grouping the data by results. This dataframe summarize the pattern that was revealed in our bivariate analysis. This revealed that teams that usually lost the match had a lower average amount of kills and monster objective kills than teams that won the match. We will go more into depth with this information during our hypothesis testing.
 
 |   result |   total_kills |   total_monster_objectives |   dragons |   heralds |   barons |   void_grubs |
 |---------:|--------------:|---------------------------:|----------:|----------:|---------:|-------------:|
@@ -93,29 +98,59 @@ We created a pivot table by grouping the data by results. This revealed that tea
 # Assessment of Missingness
 
 ## NMAR Analysis
+In our data we, had missing values from the columns `infernals`, `mountains`, `clouds`, `oceans`, `chemtechs`, `hextechs`, `elders`, `doublekills`,`triplekills`, `quadrakills`, and `pentakills`. All of these columns had the same amount of missing values, 1634. We believe that there are no columns in the dataset that are NMAR. The null values are either dragon types (mountain, elders, hextechs, chemtechs, oceans, clouds, infernals) and kill types (double, triple, quadra, penta). These values are likely to be dependent on other League of Legends stats, such as the number of dragons killed or the total number of team kills. It is unlikely that the missing values are only dependent on themselves, as they are probably MD, MAR, or MCAR.  The fact that they have the same amount of missing values suggest that it could possibly be Missing By Design (MD).
+
 ## Missingness Dependency
+In this section, we will test if there is a depenency for the null values of the dragon types on the rest of the dataset. For simplicity, we will only be using one dragon type, `mountains`. Since there are many columns, we decided to run permuation tests on every column that did not have missing values to see the dependency of `mountains`.
+
+**Null Hypothesis**: The distribution of mountains is independent of another column. Any observed difference in proportions is due to random chance.
+
+**Alternative Hypothesis:** The distribution of mountains depends on another column.
+
+**Test Statistic**: Total Variation Distance (TVD)
+
+After running our permutation tests, we discovered that `mountains` is dependent on other columns such as `side`, `heralds`, `result`, `firstblood`, `clouds`, `hextechs`, `chemtechs`, `infernals`, and `oceans`. The `mountains` column is not dependent on other columns such as `void_grubs`, `barons`, `dragons`, `doublekills`, `elders`, `pentakills`, `triplekills`, `quardrakills`, and `position`.
+
+What we found interesting is the the dragon type column is mainly not dependent on the amount of dragons killed, as it had the highest TVD of 0.44, but whether the dragon is another type. This makes sense however, since if the dragon is one type, it will not be of another.
+
+Below is an example of plots for 'mountains' when it is tested against 'result', as well as 'mountains' when it is tested against 'barons.
 <iframe
   src="assets/tvd_mountains_vs_barons.html"
   width="800"
   height="600"
   frameborder="0"
 ></iframe>
+The observed TVD for this test was approximately 0.38, and the p-value was equal to approximately 0.067. Since the p-value is greater than the 0.5 significance level, we fail reject the null hypothesis. Thus, the missingness of `mountains` does not depend on the `barons` column.
 
 <iframe
-  src="assets/tvd_mountains_vs_results.html"
+  src="assets/tvd_mountains_vs_result.html"
   width="800"
   height="600"
   frameborder="0"
 ></iframe>
+The observed TVD for this test was approximately 0.16, and the p-value was equal to 0. Since the p-value is less than the 0.5 significance level, we reject the null hypothesis. Thus, the missingness of `mountains` depends on the `result` column.
 
 
 # Hypothesis Testing
+In this section, we want to asses if there is a significant difference between the distribution of total kills and total monster objectives between winning and losing teams. This information will be be helpful in understanding the accuracy of our prediction model. We will run two one-sided permutation tests using difference in means as the test statistic. 
+
+### **Test 1: Kills**
+**Null Hypothesis:** Winning teams and losing teams have the same distribution of total kills. Any difference in average kills is due to random chance.
+**Alternative Hypothesis:** Winning teams have a higher mean number of kills than losing teams.
+**Test statistics:** Difference in Means (Mean kills for winning teams - Mean kills for losing teams)
+
 <iframe
   src="assets/test1_total_kills.html"
   width="800"
   height="600"
   frameborder="0"
 ></iframe>
+After running our permutation tests, we got a p-value that is close to 0. Since it is less than the 0.05 significance level, we will reject the null hypothesis. Therefore, there is sufficient evidence that winning teams have a higher mean total kills than losing teams.
+
+### Test 2: Monster Objectives
+**Null Hypothesis:** Winning teams and losing teams have the same distribution of monster objectives. Any difference in average monster objectives is due to random chance.
+**Alternative Hypothesis:** Winning teams have a higher average number of monster objectives than losing teams.
+**Test statistics:** Difference in Means (Mean monster objectives for winning teams - Mean monster objectives for losing teams)
 
 <iframe
   src="assets/test2_total_monsters.html"
@@ -123,6 +158,7 @@ We created a pivot table by grouping the data by results. This revealed that tea
   height="600"
   frameborder="0"
 ></iframe>
+After running our permutation tests, we got a p-value that is close to 0. Since it is less than the 0.05 significance level, we will reject the null hypothesis. Therefore, there is sufficient evidence that winning teams have a higher mean total monster objective kills than than losing teams.
 
 # Framing a Prediction Problem
 # Baseline Model
