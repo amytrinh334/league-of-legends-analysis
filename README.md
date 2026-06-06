@@ -1,3 +1,5 @@
+# League of Legends Statistical Analysis: Kills and Monsters
+
 # Introduction
 
 ## General Introduction
@@ -163,8 +165,21 @@ After running our permutation tests, we got a p-value that is close to 0. Since 
 After running our permutation tests, we got a p-value that is close to 0. Since it is less than the 0.05 significance level, we will reject the null hypothesis. Therefore, there is sufficient evidence that winning teams have a higher mean total monster objective kills than than losing teams.
 
 # Framing a Prediction Problem
+
+
 # Baseline Model
+
+
 # Final Model
+To determine the best model for the two statistics, we will be using the SequentialFeatureSelector to determine which features are most helpful for the model. This will be helpful in determining if the game statistics that contribute to the kills/monster_objective counts will impact the model.
+We will use GridSearchCV to compare different models such as Logistic Regession, SVC (Support Vector Classifier), and Decision Tree Classifier for the final model, as well as testing different hyperparameters for them. In the Pipeline, we created new columns by using StandardScalar on all the columns to make all the columns standardized. This makes it so that games with unusally large statistics don't impact the training of the model. We used the ROC-AUC score to evaluate the models since it tends to be a better evaluator for binary classifcation models.
+
+For the kills statistic, the best model was a Logistic Regression model with the hyperparemeter C equals 0.01 and the penalty being l2. It selected 4 features to use, `total_kills`, `doublekills`, `quadrakills`, `pentakills`, and ultimately ended up with an ROC-AUC score of **0.9239**. For the monster objective statistic, the best model was a Decision Tree Classifier model with the hyperparameters Max Depth equaling None, samples_split equaling 10, and the criterion equaling gini. It selected 3 features to use, `total_monster_objectives`, `barons`, `void_grubs`, and had a final ROC-AUC score of **0.9124**. Just for comparision, we also created a model using both features from the kills and monster objective statistics. The best model was a Logistic Regression Model with the hyperparameter C equals 10. It selected 9 features to use, and had a final ROC-AUC Score of 0.9522. 
+
+In conclusion, all three models were able to improve significantly and are highly accurate in it's prediction of if a team wins or loses a match. The kills statistics final model had a higher ROC-AUC score of 0.9239 using a Logistic Regression model. Compared to its baseline model, the kills statistic model had a ROC-AUC score of 0.8436 using a simple Logistic Regression model. The final model wa thus improved by 0.0803, or about **8.03%**. On the other hand, the monster objective statistics final model had a lower ROC-AUC score of 0.9124 using a Decision Tree model. It's original baseline LogisticRegression model has a ROC-AUC score of 0.7775, meanig that it approved by 0.1349, or **13.49%**. Lastly, the the model using both features  , had a final ROC-AUC score 0f 0.9522. The original baseline model using only the total_kills and total_monster_objectives, however, had a  accuracy of 0.8751. Thus this model improvd by 0.0771 or 7.71%. 
+
+It appears that the kills statistic model was a better predictor for the result of the match. It's final model was higher than the monster objectives model by 1.15%. While this suggest that the kills statistic has higher predictive power, the small margin of difference indicates that both statistics are important factors and predictors of a match's result, as seen in the high accuracy for the model that implemented both statistics. 
+
 # Fairness Analysis
 <iframe
   src="assets/fairness_kills_model.html"
@@ -174,11 +189,12 @@ After running our permutation tests, we got a p-value that is close to 0. Since 
 ></iframe>
 
 <iframe
-  src="assets/fairness_monster_objectives.html"
+  src="assets/fairness_monster_objectives_model.html"
   width="800"
   height="600"
   frameborder="0"
 ></iframe>
+
 # Conclusion
 
  
